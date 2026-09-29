@@ -1,0 +1,1034 @@
+    /* --- MÓDULO DE COLORES EDITABLES --- */
+    :root {
+        --color-petalo-principal: #45c8ff;
+        --color-petalo-gradiente: #1a8fd1;
+        --color-petalo-neon: rgba(69, 200, 255, 0.6);
+        --color-centro-flor: #0d2450;
+        --color-centro-flor-sombra: #050f28;
+        --color-calyx: #2f7a3a;
+        --color-calyx-sombra: #1c4a22;
+        --color-luz-particula-1: #54c5ff;
+        --color-luz-particula-2: #ffffff;
+        --color-tallo-principal: #064600;
+        --color-tallo-hoja: #004b1f;
+        --color-pasto-brillante: #55a630;
+        --color-sombra-hojas: rgba(27, 0, 35, 0.2);
+        --color-luz-hojas: rgba(255, 255, 255, 0.2);
+        --color-fondo-oscuro: #0505056e;
+        --color-superposicion-fondo: rgba(8, 0, 18, 0.93);
+        --color-titulo: #00aaff;
+        --color-titulo-neon: rgba(20, 180, 255, 0.75);
+        --color-sombra-titulo: rgba(0, 0, 0, 0.321);
+        --color-overlay-glow: rgba(40, 170, 255, 0.8);
+        --color-overlay-title: #ffffff;
+        --color-overlay-title-neon: rgba(255, 255, 255, 0.7);
+    }
+
+    *,
+    *::after,
+    *::before {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: var(--color-fondo-oscuro);
+        overflow: hidden;
+        perspective: 1000px;
+        font-family: 'Sour Gummy', sans-serif;
+        position: relative;
+        z-index: 1;
+        /* ===== NUEVO: BLOQUEA LA SELECCIÓN DE TEXTO Y ELEMENTOS ===== */
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10+ y Edge */
+        user-select: none; /* Sintaxis estándar */
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('../assets/back1.png');
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+        filter: blur(2px);
+        z-index: -2;
+    }
+
+    .title-container {
+        position: absolute;
+        top: 5%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 90%;
+        max-width: 1500px;
+        opacity: 0;
+        transition: opacity 1.2s ease-in-out 0.5s;
+    }
+
+    /* Halo suave detrás del título - antes el texto quedaba pegado casi
+       directo sobre las flores de arriba, sin separación real (pedido:
+       "mejora la composición"). Un glow ancho y muy tenue basta para leerse
+       como una franja propia sin tapar nada. */
+    .title-container::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 130%;
+        height: 220%;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(ellipse at center, rgba(0, 20, 40, 0.55), transparent 70%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Título con relleno degradado (efecto "tubo de neón de vidrio": blanco
+       arriba que se funde a celeste abajo) en vez de un color plano - el
+       glow ya estaba, pero sobre color sólido se leía chato/sin volumen.
+       El -webkit-text-stroke le da un borde fino que ayuda a separarlo del
+       fondo cuando hay flores claras justo detrás. */
+    .main-title {
+        background: linear-gradient(180deg, #ffffff 0%, #bdeeff 35%, var(--color-titulo) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.25);
+        font-size: clamp(1.5rem, 6.5vw, 3.8rem);
+        text-shadow: 0 0 8px rgba(9, 0, 25, 0.6), 0 0 16px var(--color-titulo-neon), 0 0 28px var(--color-titulo-neon), 0 0 42px var(--color-titulo-neon), 2px 2px 6px var(--color-sombra-titulo);
+        text-align: center;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    /* Franja tipo "racing stripe" debajo del título - un guiño a Hot
+       Wheels (las líneas de velocidad de sus cajitas) sin copiar
+       literalmente el logo. Un brillo que recorre la franja de punta a
+       punta en loop, sutil. */
+    .title-underline {
+        position: relative;
+        width: min(70%, 420px);
+        height: 3px;
+        margin: 10px auto 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, var(--color-titulo) 20%, #ffffff 50%, var(--color-titulo) 80%, transparent);
+        overflow: hidden;
+        opacity: 0.85;
+    }
+
+    .title-underline::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+        width: 40%;
+        animation: title-underline-sweep 2.6s ease-in-out infinite;
+    }
+
+    @keyframes title-underline-sweep {
+        0% { transform: translateX(-120%); }
+        100% { transform: translateX(320%); }
+    }
+
+    .night {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-superposicion-fondo);
+        z-index: -1;
+    }
+
+    /* Campo de estrellas: puntos fijos que titilan, distinto del sistema de
+       partículas que ya existia (esas flotan hacia arriba desde abajo, no
+       dan un efecto de "cielo"). Siempre detrás del ramo (mismo z-index que
+       .night, pero despues en el DOM asi pinta encima de ella). */
+    #star-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .star { position: absolute; border-radius: 50%; background: #fff; animation-name: star-twinkle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+    @keyframes star-twinkle { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+
+    /* Autitos de fondo: cruzan la pantalla en diagonal, lento, en bucle
+       continuo (a diferencia de los de la intro, que vuelan una sola vez) -
+       mas chicos, mas tenues, y siempre detrás de la envoltura/tallos/flores
+       (mismo z-index que .night/.star-field, pintados despues de esas dos
+       asi quedan encima del cielo pero por detras de cualquier elemento del
+       ramo, que empieza en z-index:0). Pausados igual que el resto del ramo
+       hasta el primer toque (no llevan la excepcion que sí tiene
+       #intro-overlay), asi que "en todo momento" significa "mientras el
+       ramo esta a la vista", no durante la pantalla de inicio. */
+    #bg-cars { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .bg-car { position: absolute; width: 27vmin; opacity: 0; animation-timing-function: linear; animation-iteration-count: infinite; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .4)); }
+    .bg-car img { display: block; width: 100%; height: auto; }
+    .bg-car--dr { animation-name: bgfly-dr; }
+    .bg-car--dl { animation-name: bgfly-dl; }
+    /* Trayecto mas plano que antes (18vh de caida en vez de 150vh - casi
+       horizontal, con solo una leve inclinacion hacia abajo) a pedido
+       explicito: "no tan en diagonal, un poco mas recto". */
+    @keyframes bgfly-dr { 0% { transform: translate(-25vw, 0vh) rotate(6deg); opacity: 0; } 8% { opacity: .85; } 92% { opacity: .85; } 100% { transform: translate(125vw, 18vh) rotate(6deg); opacity: 0; } }
+    @keyframes bgfly-dl { 0% { transform: translate(125vw, 0vh) rotate(-6deg); opacity: 0; } 8% { opacity: .85; } 92% { opacity: .85; } 100% { transform: translate(-25vw, 18vh) rotate(-6deg); opacity: 0; } }
+    /* Mismo propulsor de particulas que los autitos de la intro, mas chico
+       (acorde al tamaño reducido de estos autos de fondo). */
+    .bg-car .thruster { width: 8vmin; height: 4vmin; }
+    .bg-car--dr .thruster { left: -6.5vmin; }
+    .bg-car--dl .thruster { right: -6.5vmin; }
+    .bg-car--dr .thruster-particle { right: 0; animation-name: thrust-stream-left; }
+    .bg-car--dl .thruster-particle { left: 0; animation-name: thrust-stream-right; }
+
+    .flowers {
+        position: relative;
+        transform: scale(0.52);
+    }
+
+    /* Sombra de piso: sin esto el ramo quedaba "flotando" en la nada sobre
+       el fondo estrellado, sin ningún punto de apoyo visual. Es un div
+       aparte ANTES de .flowers en el HTML (no un ::after) para que el
+       orden del DOM alcance para pintarla detrás sin pelear con los
+       z-index ya establecidos adentro del ramo (flower-wrapping,
+       flowers-mount, etc. vienen todos después en el documento). */
+    .ramo-shadow {
+        position: absolute;
+        bottom: 2vh;
+        left: 50%;
+        width: 55vmin;
+        height: 8vmin;
+        transform: translateX(-50%);
+        background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55), transparent 72%);
+        pointer-events: none;
+    }
+
+    .flower {
+        position: absolute;
+        bottom: 10vmin;
+        transform-origin: bottom center;
+        will-change: transform;
+        z-index: 10;
+        --fl-speed: 0.8s;
+    }
+
+    .head-stem {
+        position: absolute;
+        bottom: 10vmin;
+        transform-origin: bottom center;
+        will-change: transform;
+    }
+
+    .head-stem__image {
+        width: 35vmin;
+        height: 35vmin;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        cursor: pointer;
+        z-index: 11;
+    }
+
+    /* Contenedor de las flores: con su propio position+z-index (no solo
+       las flores adentro) crea su PROPIO contexto de apilamiento, así queda
+       garantizado por DEBAJO de TODOS los tallos de una sola vez (que llegan
+       hasta z:58) sin depender de que cada z-index individual de cada flor
+       "se escape" y termine compitiendo directo contra los tallos - los
+       hotwheels y sus tallos van siempre encima de las flores, a propósito
+       (pedido explícito: "los hotwheels y sus tallos superpuestos a las
+       flores"). z-index:50 (ya NO 0): tenía que quedar por ENCIMA de la
+       hierba de abajo (.flower__grass__leaf y otros, z:10 - antes z:100,
+       bajados junto con este cambio) porque algunas margaritas, al quedar
+       geometricamente detrás de algún manojo de pasto, mostraban solo el
+       glow desbordando alrededor y los pétalos tapados ("algunas flores sin
+       pétalos, otras sí"). Orden final: tallos(60+) > flores(50) >
+       hierba(≤20) > envoltorio(0). */
+    #flowers-mount { position: relative; z-index: 50; }
+
+    /* --- ESTILO PARA EL ENVOLTORIO --- */
+    .flower-wrapping {
+        position: absolute;
+        bottom: -5vmin;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150vmin;
+        height: 130vmin;
+        background-image: url('../assets/ramo1.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: bottom center;
+        z-index: 0;
+        /* ramo1.png ya trae el papel negro y el moño azul dibujados (antes
+           era foto de papel celeste y este filter lo convertía a negro por
+           software vía grayscale+clip-path sobre la cinta - ya no hace
+           falta, la imagen fuente cambió). El glow celeste sigue siendo la
+           base; se le suma una capa dorada bien tenue en el borde para que
+           el envoltorio no quede "frío" al lado del dorado de las cajitas
+           Hot Wheels - sin competir con el celeste, que manda. */
+        filter: drop-shadow(0 0 3vmin rgba(69, 200, 255, 0.9)) drop-shadow(0 0 7vmin rgba(69, 200, 255, 0.65)) drop-shadow(0 0 12vmin rgba(69, 200, 255, 0.4)) drop-shadow(0 0 2vmin rgba(255, 204, 0, 0.12));
+    }
+
+    /*
+        =============================================
+        PANEL DE CONTROL PARA TODOS LOS TALLOS
+        =============================================
+    */
+    /* TALLOS DE AUTOS: ahora en la base (cortos) - antes eran los más altos,
+       intercambiados de posición con las margaritas a pedido explícito
+       ("las flores en la parte más alta, los hotwheels abajo en la base").
+       Los nombres de las clases (--6/7/8 "traseros", etc.) ya no describen
+       su altura real, se dejan igual para no reescribir el HTML que las usa. */
+    /* "left" ya no es 50% parejo en todos: un pivote distinto por tallo
+       (33-67%) rompe el efecto "espejo perfecto" que daba la simetría
+       exacta de las rotaciones sway-left/right-N, y da mas sensacion de
+       abanico/profundidad en vez de pared plana. */
+    .head-stem--6 { --h: 42vmin; --d: 0s; left: 33%; animation: sway-left-car-wide 5.5s linear infinite; z-index: 60; }
+    .head-stem--8 { --h: 49vmin; --d: 0s; left: 68%; animation: sway-right-car-wide 5.2s linear infinite; z-index: 60; }
+    .head-stem--1 { --h: 57vmin; --d: 0s; left: 40%; animation: sway-left-20 5s linear infinite; z-index: 64; }
+    .head-stem--2 { --h: 82vmin; --d: 0s; left: 51%; animation: sway-center 5.8s linear infinite; z-index: 64; }
+    .head-stem--3 { --h: 48vmin; --d: 0s; left: 61%; animation: sway-right-20 4.8s linear infinite; z-index: 64; }
+    .head-stem--4 { --h: 45vmin; --d: 0s; left: 45%; animation: sway-left-10 5.2s linear infinite; z-index: 68; }
+    .head-stem--5 { --h: 38vmin; --d: 0s; left: 58%; animation: sway-right-10 5s linear infinite; z-index: 68; }
+    /* MARGARITAS AZULES: 12 en total, armadas por JS (ver buildFlowers() al
+       final del archivo) en vez de escritas a mano - con 2 capas de pétalos
+       cada una (24 divs por flor) habría sido demasiado HTML repetido. Sus
+       posiciones/z-index/altura se definen en FLOWER_SLOTS, intercaladas
+       entre los 3 niveles de tallos de arriba (z:1 atrás, z:5 medio, z:8
+       intermedio) en vez de quedar todas juntas al frente como antes. */
+
+    /*
+        =============================================
+        LÓGICA INTERNA (NO TOCAR)
+        =============================================
+    */
+    .head-stem .flower__line, .flower .flower__line { height: var(--h); animation-delay: var(--d); }
+    /* Selectores agrupados (antes 3 reglas separadas para head1 y 2 para head4,
+       cada una con su propia ruta de imagen repetida sin ningun cambio
+       visual). */
+    .head-stem--1 .head-stem__image, .head-stem--5 .head-stem__image, .head-stem--6 .head-stem__image { background-image: url('../assets/head1.png'); }
+    .head-stem--2 .head-stem__image { background-image: url('../assets/head2.png'); }
+    .head-stem--3 .head-stem__image { background-image: url('../assets/head3.png'); }
+    .head-stem--4 .head-stem__image, .head-stem--8 .head-stem__image { background-image: url('../assets/head4.png'); }
+    /* Hotwheels de los extremos: mas grandes que el resto (35vmin base) y
+       con mas espacio para lucirse, pedido explicito ("sobra espacio").
+       El resto (--1/--3/--4/--5) tambien varia de tamaño entre si (antes
+       compartian los 35vmin base parejo) para que no se vean como copias
+       exactas unos de otros. */
+    .head-stem--6 .head-stem__image, .head-stem--8 .head-stem__image { width: 43vmin; height: 43vmin; }
+    .head-stem--2 .head-stem__image { width: 30vmin; height: 30vmin; }
+    .head-stem--1 .head-stem__image { width: 33vmin; height: 33vmin; }
+    .head-stem--3 .head-stem__image { width: 37vmin; height: 37vmin; }
+    .head-stem--4 .head-stem__image { width: 31vmin; height: 31vmin; }
+    .head-stem--5 .head-stem__image { width: 36vmin; height: 36vmin; }
+
+    /* ... (El resto de tus estilos CSS van aquí, no es necesario copiarlos todos de nuevo)... */
+
+    /* z-index explícito: sin esto, .flower__line (el tallo verde, que viene
+       DESPUÉS en el HTML) pintaba por encima de .flower__leafs (la cabeza
+       con los pétalos) cada vez que se cruzaban en pantalla - ninguno de
+       los dos tenía z-index propio, así que ganaba el orden del DOM, no la
+       cabeza de la flor. Se notaba sobre todo durante la animación de
+       aparición (el tallo creciendo por detrás/encima de la flor todavía
+       floreciendo). */
+    .flower__leafs { position: relative; z-index: 2; animation: blooming-flower 2s backwards; will-change: transform; filter: drop-shadow(0 0 2.5vmin rgba(69, 200, 255, 1)) drop-shadow(0 0 6vmin rgba(69, 200, 255, 0.8)) drop-shadow(0 0 10vmin rgba(69, 200, 255, 0.5)); }
+    .flower__leafs::after { content: ""; position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); width: 12vmin; height: 12vmin; background-color: var(--color-petalo-neon); filter: blur(11vmin); }
+    /* MODELO DE FLOR: margarita grande de doble capa - una capa exterior de
+       14 pétalos largos y una interior de 13 pétalos más cortos, rotada a
+       la mitad de paso (para que no queden pegados exactamente encima de
+       los de afuera, como una margarita real), mucho más grandes que la
+       version anterior. El cáliz (disco verde en la base) tapa la unión con
+       el tallo, que antes quedaba expuesta. */
+    .flower__calyx { position: absolute; bottom: -1.5vmin; left: 50%; margin-left: -4.5vmin; width: 9vmin; height: 7vmin; border-radius: 50% 50% 40% 40%; background-image: radial-gradient(circle at 50% 30%, var(--color-calyx), var(--color-calyx-sombra) 80%); z-index: 0; }
+    /* Segundo inset (highlight direccional, arriba-izquierda) sumado al
+       glow parejo que ya tenía - antes los pétalos se veían un poco planos
+       al lado del brillo/relieve de las cajitas Hot Wheels; esto les da
+       una veta de luz como si fueran de vidrio/cerámica. */
+    .flower__leaf { position: absolute; bottom: 0; left: 50%; background-image: linear-gradient(to top, var(--color-petalo-gradiente), var(--color-petalo-principal)); transform-origin: bottom center; opacity: 0.97; box-shadow: inset 0 0 1.6vmin rgba(255, 255, 255, 0.6), inset -0.4vmin 0.5vmin 1vmin rgba(255, 255, 255, 0.3); z-index: 1; }
+    .flower__leaf--outer { width: 5vmin; height: 25vmin; margin-left: -2.5vmin; border-radius: 50% 50% 45% 45%/70% 70% 30% 30%; }
+    .flower__leaf--inner { width: 3.6vmin; height: 18vmin; margin-left: -1.8vmin; border-radius: 50% 50% 45% 45%/70% 70% 30% 30%; opacity: 0.92; }
+    .flower__white-circle { position: absolute; left: 50%; top: 0; margin-left: -4vmin; margin-top: -4vmin; width: 8vmin; height: 8vmin; border-radius: 50%; background-image: radial-gradient(circle at 38% 32%, #6fa8e8, var(--color-centro-flor) 55%, var(--color-centro-flor-sombra) 100%); box-shadow: inset 0 0 1.6vmin rgba(0, 10, 40, 0.45); z-index: 2; }
+    .flower__white-circle::before { content: ""; position: absolute; left: 22%; top: 18%; width: 28%; height: 20%; border-radius: 50%; background: rgba(255, 255, 255, 0.55); filter: blur(0.3vmin); }
+    .flower__white-circle::after { content: ""; position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%); width: 62%; height: 62%; border-radius: inherit; background-image: repeating-radial-gradient(circle, rgba(0, 10, 40, 0.22) 0, rgba(0, 10, 40, 0.22) .3vmin, transparent .3vmin, transparent .8vmin); }
+    /* SEGUNDO TIPO DE FLOR ("clásica"): el diseño original de 4 pétalos
+       anchos tipo rosa, de antes de que este ramo se rediseñara a
+       margaritas - se reincorpora intercalado con las margaritas (ver
+       FLOWER_SLOTS más abajo), mismos colores/cáliz que la margarita, para
+       que el ramo tenga variedad de formas en vez de una sola repetida. */
+    .flower__leaf--classic { position: absolute; bottom: 0; left: 50%; width: 8vmin; height: 11vmin; border-radius: 51% 49% 47% 53%/44% 45% 55% 69%; background-image: linear-gradient(to top, var(--color-petalo-gradiente), var(--color-petalo-principal)); transform-origin: bottom center; opacity: 0.9; box-shadow: inset 0 0 2vmin rgba(255, 255, 255, 0.5); z-index: 1; }
+    .flower__leaf--classic-1 { transform: translate(-10%, 1%) rotateY(40deg) rotateX(-50deg); }
+    .flower__leaf--classic-2 { transform: translate(-50%, -4%) rotateX(40deg); }
+    .flower__leaf--classic-3 { transform: translate(-90%, 0%) rotateY(45deg) rotateX(50deg); }
+    .flower__leaf--classic-4 { width: 8vmin; height: 8vmin; transform-origin: bottom left; border-radius: 4vmin 10vmin 4vmin 4vmin; transform: translate(0%, 18%) rotateX(70deg) rotate(-43deg); opacity: 0.8; }
+    .flower__white-circle--classic { position: absolute; left: -3.5vmin; top: -3vmin; width: 9vmin; height: 4vmin; border-radius: 50%; background-image: radial-gradient(circle at 38% 32%, #6fa8e8, var(--color-centro-flor) 55%, var(--color-centro-flor-sombra) 100%); box-shadow: inset 0 0 1.2vmin rgba(0, 10, 40, 0.4); z-index: 2; }
+    .flower__line { width: 1.5vmin; background-image: linear-gradient(to left, var(--color-sombra-hojas), transparent, var(--color-luz-hojas)), linear-gradient(to top, transparent 10%, var(--color-tallo-principal), var(--color-tallo-principal)); box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5); animation: grow-flower-tree 3s backwards; transform-origin: bottom center; will-change: transform; position: relative; }
+    .flower__line__leaf { --w: 7vmin; --h: calc(var(--w) + 2vmin); position: absolute; top: 20%; left: 90%; width: var(--w); height: var(--h); border-top-right-radius: var(--h); border-bottom-left-radius: var(--h); background-image: linear-gradient(to top, rgba(20, 122, 20, 0.4), var(--color-tallo-hoja)); }
+    .flower__line__leaf--1 { transform: rotate(70deg) rotateY(30deg); animation: blooming-leaf-right var(--fl-speed) 1.6s backwards; }
+    .flower__line__leaf--2 { top: 45%; transform: rotate(70deg) rotateY(30deg); animation: blooming-leaf-right var(--fl-speed) 1.4s backwards; }
+    .flower__line__leaf--3, .flower__line__leaf--4, .flower__line__leaf--6 { border-top-right-radius: 0; border-bottom-left-radius: 0; border-top-left-radius: var(--h); border-bottom-right-radius: var(--h); left: -460%; top: 12%; transform: rotate(-70deg) rotateY(30deg); }
+    .flower__line__leaf--3 { animation: blooming-leaf-left var(--fl-speed) 1.2s backwards; }
+    .flower__line__leaf--4 { top: 40%; animation: blooming-leaf-left var(--fl-speed) 1s backwards; }
+    .flower__line__leaf--5 { top: 0; transform-origin: left; transform: rotate(70deg) rotateY(30deg) scale(0.6); animation: blooming-leaf-right var(--fl-speed) 1.8s backwards; }
+    .flower__line__leaf--6 { top: -2%; left: -450%; transform-origin: right; transform: rotate(-70deg) rotateY(30deg) scale(0.6); animation: blooming-leaf-left var(--fl-speed) 2s backwards; }
+    .flower__light { position: absolute; bottom: 0vmin; width: 1vmin; height: 1vmin; background-color: var(--color-luz-particula-1); border-radius: 50%; filter: blur(0.2vmin); animation: light-ans 4s linear infinite backwards; }
+    .flower__light:nth-child(odd) { background-color: var(--color-luz-particula-2); }
+    .flower__light--1 { left: -2vmin; animation-delay: 1s; }
+    .flower__light--2 { left: 3vmin; animation-delay: 0.5s; }
+    .flower__light--3 { left: -6vmin; animation-delay: 0.3s; }
+    .flower__light--4 { left: 6vmin; animation-delay: 0.9s; }
+    .flower__light--5 { left: -1vmin; animation-delay: 1.5s; }
+    .flower__light--6 { left: -4vmin; animation-delay: 3s; }
+    .flower__light--7 { left: 3vmin; animation-delay: 2s; }
+    .flower__light--8 { left: -6vmin; animation-delay: 3.5s; }
+    .flower__grass { --c: var(--color-pasto-brillante); --line-w: 1.5vmin; position: absolute; bottom: 12vmin; left: -7vmin; display: flex; flex-direction: column; align-items: flex-end; z-index: 20; transform-origin: bottom center; transform: rotate(-48deg) rotateY(40deg) }
+    .flower__grass--1 { animation: moving-grass 2s linear infinite }
+    .flower__grass--2 { left: 2vmin; bottom: 10vmin; transform: scale(.5) rotate(75deg) rotateX(10deg) rotateY(-200deg); opacity: .8; z-index: 0; animation: moving-grass--2 1.5s linear infinite }
+    .flower__grass--top { width: 7vmin; height: 10vmin; border-top-right-radius: 100%; border-right: var(--line-w) solid var(--c); transform-origin: bottom center; transform: rotate(-2deg) }
+    .flower__grass--bottom { margin-top: -2px; width: var(--line-w); height: 25vmin; background-image: linear-gradient(to top, transparent, var(--c)) }
+    .flower__grass__leaf { --size: 10vmin; position: absolute; width: calc(var(--size) * 2.1); height: var(--size); border-top-left-radius: var(--size); border-top-right-radius: var(--size); background-image: linear-gradient(to top, transparent, transparent 30%, var(--c)); z-index: 20 }
+    .flower__grass__leaf--1 { top: -6%; left: 30%; --size: 6vmin; transform: rotate(-20deg); animation: growing-grass-ans--1 2s 2.6s backwards }
+    .flower__grass__leaf--2 { top: -5%; left: -110%; --size: 6vmin; transform: rotate(10deg); animation: growing-grass-ans--2 2s 2.4s linear backwards }
+    .flower__grass__leaf--3 { top: 5%; left: 60%; --size: 8vmin; transform: rotate(-18deg) rotateX(-20deg); animation: growing-grass-ans--3 2s 2.2s linear backwards }
+    .flower__grass__leaf--4 { top: 6%; left: -135%; --size: 8vmin; transform: rotate(2deg); animation: growing-grass-ans--4 2s 2s linear backwards }
+    .flower__grass__leaf--5 { top: 20%; left: 60%; --size: 10vmin; transform: rotate(-24deg) rotateX(-20deg); animation: growing-grass-ans--5 2s 1.8s linear backwards }
+    .flower__grass__leaf--6 { top: 22%; left: -180%; --size: 10vmin; transform: rotate(10deg); animation: growing-grass-ans--6 2s 1.6s linear backwards }
+    .flower__grass__leaf--7 { top: 39%; left: 70%; --size: 10vmin; transform: rotate(-10deg); animation: growing-grass-ans--7 2s 1.4s linear backwards }
+    .flower__grass__leaf--8 { top: 40%; left: -215%; --size: 11vmin; transform: rotate(10deg); animation: growing-grass-ans--8 2s 1.2s linear backwards }
+    .flower__grass__overlay { position: absolute; top: -10%; right: 0%; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .6); filter: blur(1.5vmin); z-index: 20 }
+    .flower__g-long { --w: 2vmin; --h: 6vmin; --c: var(--color-tallo-hoja); position: absolute; bottom: 10vmin; left: -3vmin; transform-origin: bottom center; transform: rotate(-30deg) rotateY(-20deg); display: flex; flex-direction: column; align-items: flex-end; animation: flower-g-long-ans 3s linear infinite }
+    .flower__g-long__top { top: calc(var(--h) * -1); width: calc(var(--w) + 1vmin); height: var(--h); border-top-right-radius: 100%; border-right: .7vmin solid var(--c); transform: translate(-.7vmin, 1vmin) }
+    .flower__g-long__bottom { width: var(--w); height: 50vmin; transform-origin: bottom center; background-image: linear-gradient(to top, transparent 30%, var(--c)); box-shadow: inset 0 0 2px rgba(0, 0, 0, .5); clip-path: polygon(35% 0, 65% 1%, 100% 100%, 0% 100%) }
+    .flower__g-right { position: absolute; bottom: 6vmin; left: -2vmin; transform-origin: bottom left; transform: rotate(20deg) }
+    .flower__g-right .leaf { width: 30vmin; height: 50vmin; border-top-left-radius: 100%; border-left: 2vmin solid var(--color-pasto-brillante); background-image: linear-gradient(to bottom, transparent, var(--color-fondo-oscuro) 60%); -webkit-mask-image: linear-gradient(to top, transparent 30%, var(--color-pasto-brillante) 60%) }
+    .flower__g-right--1 { animation: flower-g-right-ans 2.5s linear infinite }
+    .flower__g-right--2 { left: 5vmin; transform: rotateY(-180deg); animation: flower-g-right-ans--2 3s linear infinite }
+    .flower__g-right--2 .leaf { height: 75vmin; filter: blur(.3vmin); opacity: .8 }
+    .flower__g-front { position: absolute; bottom: 6vmin; left: 2.5vmin; z-index: 20; transform-origin: bottom center; transform: rotate(-28deg) rotateY(30deg) scale(1.04); animation: flower__g-front-ans 2s linear infinite }
+    .flower__g-front__line { width: .3vmin; height: 20vmin; background-image: linear-gradient(to top, transparent, var(--color-pasto-brillante), transparent 100%); position: relative }
+    .flower__g-front__leaf-wrapper { position: absolute; top: 0; left: 0; transform-origin: bottom left; transform: rotate(10deg) }
+    .flower__g-front__leaf-wrapper:nth-child(even) { left: 0vmin; transform: rotateY(-180deg) rotate(5deg); animation: flower__g-front__leaf-left-ans 1s ease-in backwards }
+    .flower__g-front__leaf-wrapper:nth-child(odd) { animation: flower__g-front__leaf-ans 1s ease-in backwards }
+    .flower__g-front__leaf-wrapper--1 { top: -8vmin; transform: scale(.7); animation: flower__g-front__leaf-ans 1s 5.5s ease-in backwards !important }
+    .flower__g-front__leaf-wrapper--2 { top: -8vmin; transform: rotateY(-180deg) scale(.7) !important; animation: flower__g-front__leaf-left-ans-2 1s 4.6s ease-in backwards !important }
+    .flower__g-front__leaf-wrapper--3 { top: -3vmin; animation: flower__g-front__leaf-ans 1s 4.6s ease-in backwards }
+    .flower__g-front__leaf-wrapper--4 { top: -3vmin; transform: rotateY(-180deg) scale(.9) !important; animation: flower__g-front__leaf-left-ans-2 1s 4.6s ease-in backwards !important }
+    .flower__g-front__leaf-wrapper--5, .flower__g-front__leaf-wrapper--6 { top: 2vmin }
+    .flower__g-front__leaf-wrapper--7, .flower__g-front__leaf-wrapper--8 { top: 6.5vmin }
+    .flower__g-front__leaf-wrapper--2 { animation-delay: 5.2s !important }
+    .flower__g-front__leaf-wrapper--3 { animation-delay: 4.9s !important }
+    .flower__g-front__leaf-wrapper--5 { animation-delay: 4.3s !important }
+    .flower__g-front__leaf-wrapper--6 { animation-delay: 4.1s !important }
+    .flower__g-front__leaf-wrapper--7 { animation-delay: 3.8s !important }
+    .flower__g-front__leaf-wrapper--8 { animation-delay: 3.5s !important }
+    .flower__g-front__leaf { width: 10vmin; height: 10vmin; border-radius: 100% 0% 0% 100%/100% 100% 0% 0%; box-shadow: inset 0 2px 1vmin hsla(184, 97%, 58%, .2); background-image: linear-gradient(to bottom left, transparent, var(--color-fondo-oscuro)), linear-gradient(to bottom right, var(--color-pasto-brillante) 50%, transparent 50%, transparent); -webkit-mask-image: linear-gradient(to bottom right, var(--color-pasto-brillante) 50%, transparent 50%, transparent); mask-image: linear-gradient(to bottom right, var(--color-pasto-brillante) 50%, transparent 50%, transparent) }
+    .flower__g-fr { position: absolute; bottom: -4vmin; left: vmin; transform-origin: bottom left; z-index: 10; animation: flower__g-fr-ans 2s linear infinite }
+    .flower__g-fr .leaf { width: 30vmin; height: 50vmin; border-top-left-radius: 100%; border-left: 2vmin solid var(--color-pasto-brillante); -webkit-mask-image: linear-gradient(to top, transparent 25%, var(--color-pasto-brillante) 50%); position: relative; z-index: 1 }
+    .flower__g-fr__leaf { position: absolute; top: 0; left: 0; width: 10vmin; height: 10vmin; border-radius: 100% 0% 0% 100%/100% 100% 0% 0%; box-shadow: inset 0 2px 1vmin hsla(184, 97%, 58%, .2); background-image: linear-gradient(to bottom left, transparent, var(--color-fondo-oscuro) 98%), linear-gradient(to bottom right, var(--color-pasto-brillante) 45%, transparent 50%, transparent); -webkit-mask-image: linear-gradient(135deg, var(--color-pasto-brillante) 40%, transparent 50%, transparent) }
+    .flower__g-fr__leaf--1 { left: 20vmin; transform: rotate(45deg); animation: flower__g-fr-leaft-ans-1 .5s 5.2s linear backwards }
+    .flower__g-fr__leaf--2 { left: 12vmin; top: -7vmin; transform: rotate(25deg) rotateY(-180deg); animation: flower__g-fr-leaft-ans-6 .5s 5s linear backwards }
+    .flower__g-fr__leaf--3 { left: 15vmin; top: 6vmin; transform: rotate(55deg); animation: flower__g-fr-leaft-ans-5 .5s 4.8s linear backwards }
+    .flower__g-fr__leaf--4 { left: 6vmin; top: -2vmin; transform: rotate(25deg) rotateY(-180deg); animation: flower__g-fr-leaft-ans-6 .5s 4.6s linear backwards }
+    .flower__g-fr__leaf--5 { left: 10vmin; top: 14vmin; transform: rotate(55deg); animation: flower__g-fr-leaft-ans-5 .5s 4.4s linear backwards }
+    .flower__g-fr__leaf--6 { left: 0vmin; top: 6vmin; transform: rotate(25deg) rotateY(-180deg); animation: flower__g-fr-leaft-ans-6 .5s 4.2s linear backwards }
+    .flower__g-fr__leaf--7 { left: 5vmin; top: 22vmin; transform: rotate(45deg); animation: flower__g-fr-leaft-ans-7 .5s 4s linear backwards }
+    .flower__g-fr__leaf--8 { left: -4vmin; top: 15vmin; transform: rotate(15deg) rotateY(-180deg); animation: flower__g-fr-leaft-ans-8 .5s 3.8s linear backwards }
+    .long-g { position: absolute; bottom: 25vmin; left: -42vmin; transform-origin: bottom left }
+    .long-g--1 { bottom: 0vmin; transform: scale(.8) rotate(-5deg) }
+    .long-g--1 .leaf { -webkit-mask-image: linear-gradient(to top, transparent 40%, var(--color-pasto-brillante) 80%) !important }
+    .long-g--1 .leaf--1 { --w: 5vmin; --h: 60vmin; left: -2vmin; transform: rotate(3deg) rotateY(-180deg) }
+    .long-g--2, .long-g--3 { bottom: -3vmin; left: -35vmin; transform-origin: center; transform: scale(.6) rotateX(60deg) }
+    .long-g--2 .leaf, .long-g--3 .leaf { -webkit-mask-image: linear-gradient(to top, transparent 50%, var(--color-pasto-brillante) 80%) !important }
+    .long-g--2 .leaf--1, .long-g--3 .leaf--1 { left: -1vmin; transform: rotateY(-180deg) }
+    .long-g--3 { left: -17vmin; bottom: 0vmin }
+    .long-g--3 .leaf { -webkit-mask-image: linear-gradient(to top, transparent 40%, var(--color-pasto-brillante) 80%) !important }
+    .long-g--4 { left: 25vmin; bottom: -3vmin; transform-origin: center; transform: scale(.6) rotateX(60deg) }
+    .long-g--4 .leaf { -webkit-mask-image: linear-gradient(to top, transparent 50%, var(--color-pasto-brillante) 80%) !important }
+    .long-g--5 { left: 42vmin; bottom: 0vmin; transform: scale(.8) rotate(2deg) }
+    .long-g--6 { left: 0vmin; bottom: -20vmin; z-index: 20; filter: blur(.3vmin); transform: scale(.8) rotate(2deg) }
+    .long-g--7 { left: 35vmin; bottom: 20vmin; z-index: -1; filter: blur(.3vmin); transform: scale(.6) rotate(2deg); opacity: .7 }
+    .long-g .leaf { --w: 15vmin; --h: 40vmin; --c: var(--color-tallo-hoja); position: absolute; bottom: 0; width: var(--w); height: var(--h); border-top-left-radius: 100%; border-left: 2vmin solid var(--c); -webkit-mask-image: linear-gradient(to top, transparent 20%, var(--color-fondo-oscuro)); transform-origin: bottom center }
+    .long-g .leaf--0 { left: 2vmin; animation: leaf-ans-1 4s linear infinite }
+    .long-g .leaf--1 { --w: 5vmin; --h: 60vmin; animation: leaf-ans-1 4s linear infinite }
+    .long-g .leaf--2 { --w: 10vmin; --h: 40vmin; left: -.5vmin; bottom: 5vmin; transform-origin: bottom left; transform: rotateY(-180deg); animation: leaf-ans-2 3s linear infinite }
+    .long-g .leaf--3 { --w: 5vmin; --h: 30vmin; left: -1vmin; bottom: 3.2vmin; transform-origin: bottom left; transform: rotate(-10deg) rotateY(-180deg); animation: leaf-ans-3 3s linear infinite }
+    .grow-ans { animation: grow-ans 2s var(--d) backwards }
+    .growing-grass { animation: growing-grass-ans 1s 2s backwards }
+    .container * { animation-play-state: paused !important }
+    /* Excepcion a la regla de arriba: los autitos de la intro SI deben
+       animar mientras "container" sigue puesto en el body (eso es
+       justamente lo que mantiene el ramo pausado/invisible durante la
+       intro) - un selector con ID pesa mas que ".container *" aunque los
+       dos tengan !important, asi que esta regla gana. */
+    .container #intro-overlay, .container #intro-overlay * { animation-play-state: running !important }
+    @media (max-width:600px) { .flowers { transform: scale(.45); bottom: 5vh; } .title-container { flex-direction: column; gap: 10px; top: 3%; justify-content: center; align-items: center } }
+    /* Celulares chicos (<380px de ancho, ej. iPhone SE) - un empujón más
+       sobre el mismo breakpoint de arriba para que el ramo no se corte a
+       los costados y el botón/badges no queden pegados al borde. */
+    @media (max-width: 380px) {
+        .flowers { transform: scale(.36); }
+        .letter-card { padding: 18px 14px; }
+        .envelope-seal { width: clamp(120px, 46vw, 160px); }
+    }
+    /* Celular en horizontal (poca altura, no poco ancho) - sin esto el
+       ramo se pasaba de la pantalla verticalmente y tapaba el título, ya
+       que hasta acá todos los breakpoints miraban solo el ancho. */
+    @media (max-height: 480px) and (orientation: landscape) {
+        .title-container { top: 2%; }
+        .main-title { font-size: clamp(1.1rem, 4vw, 1.8rem); }
+        .title-underline { margin-top: 4px; }
+        .flowers { transform: scale(.32); }
+        .ramo-container { margin-bottom: 0; }
+        .letter-overlay.visible .letter-card { transform: scale(0.85); }
+        .letter-overlay { padding: 8px; }
+    }
+    @keyframes grow-ans { 0% { transform: scale(0); opacity: 0 } }
+    @keyframes growing-grass-ans { 0% { transform: scale(0) } }
+    @keyframes light-ans { 0% { opacity: 0; transform: translateY(0vmin) } 25% { opacity: 1; transform: translateY(-5vmin) translateX(-2vmin) } 50% { opacity: 1; transform: translateY(-15vmin) translateX(2vmin); filter: blur(.2vmin) } 75% { transform: translateY(-20vmin) translateX(-2vmin); filter: blur(.2vmin) } 100% { transform: translateY(-30vmin); opacity: 0; filter: blur(1vmin) } }
+    @keyframes sway-center { 0%, 100% { transform: rotate(2deg); } 50% { transform: rotate(-2deg); } }
+    @keyframes sway-left-10 { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(-12deg); } }
+    @keyframes sway-left-20 { 0%, 100% { transform: rotate(-18deg); } 50% { transform: rotate(-22deg); } }
+    @keyframes sway-left-30 { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(-15deg); } }
+    @keyframes sway-left-35 { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(-15deg); } }
+    /* Solo para los hotwheels de las puntas (--6/--8) - separado de
+       sway-left-35/right-35 de arriba a proposito: esas dos las usan
+       TAMBIEN un par de flores (FLOWER_SLOTS), y un ajuste de angulo
+       pedido solo para los hotwheels no debe abrir de mas esas flores. */
+    @keyframes sway-left-car-wide { 0%, 100% { transform: rotate(-30deg); } 50% { transform: rotate(-38deg); } }
+    @keyframes sway-right-10 { 0%, 100% { transform: rotate(8deg); } 50% { transform: rotate(12deg); } }
+    @keyframes sway-right-20 { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(22deg); } }
+    @keyframes sway-right-30 { 0%, 100% { transform: rotate(22deg); } 50% { transform: rotate(22deg); } }
+    @keyframes sway-right-35 { 0%, 100% { transform: rotate(10deg); } 50% { transform: rotate(15deg); } }
+    @keyframes sway-right-car-wide { 0%, 100% { transform: rotate(30deg); } 50% { transform: rotate(38deg); } }
+    @keyframes blooming-leaf-right { 0% { transform-origin: left; transform: rotate(70deg) rotateY(30deg) scale(0) } }
+    @keyframes blooming-leaf-left { 0% { transform-origin: right; transform: rotate(-70deg) rotateY(30deg) scale(0) } }
+    /* transform:scaleY en vez de animar height directo (antes 0%{height:0}
+       interpolando hasta el var(--h) de la regla de arriba): height fuerza
+       un reflow de layout en CADA frame, para las 8 flores a la vez
+       (mismo momento en que otros ~250 elementos empiezan a animar al
+       revelar el ramo) - eso es lo que trababa el navegador justo al tocar
+       "abrir", sobre todo en celulares (reporte real 2026-09-25). scaleY
+       con transform-origin:bottom da el mismo resultado visual (los hijos
+       del tallo estan posicionados en % de su altura, que ya queda fija en
+       var(--h) - escalar el contenedor entero los mueve proporcional e
+       identico a como se veian con el height animado) pero corre en el
+       compositor/GPU, sin tocar layout. */
+    @keyframes grow-flower-tree { 0% { transform: scaleY(0); border-radius: 1vmin } }
+    @keyframes blooming-flower { 0% { transform: scale(0) } }
+    @keyframes moving-grass { 0%, 100% { transform: rotate(-48deg) rotateY(40deg) } 50% { transform: rotate(-50deg) rotateY(40deg) } }
+    @keyframes moving-grass--2 { 0%, 100% { transform: scale(.5) rotate(75deg) rotateX(10deg) rotateY(-200deg) } 50% { transform: scale(.5) rotate(79deg) rotateX(10deg) rotateY(-200deg) } }
+    @keyframes growing-grass-ans--1 { 0% { transform-origin: bottom left; transform: rotate(-20deg) scale(0) } }
+    @keyframes growing-grass-ans--2 { 0% { transform-origin: bottom right; transform: rotate(10deg) scale(0) } }
+    @keyframes growing-grass-ans--3 { 0% { transform-origin: bottom left; transform: rotate(-18deg) rotateX(-20deg) scale(0) } }
+    @keyframes growing-grass-ans--4 { 0% { transform-origin: bottom right; transform: rotate(2deg) scale(0) } }
+    @keyframes growing-grass-ans--5 { 0% { transform-origin: bottom left; transform: rotate(-24deg) rotateX(-20deg) scale(0) } }
+    @keyframes growing-grass-ans--6 { 0% { transform-origin: bottom right; transform: rotate(10deg) scale(0) } }
+    @keyframes growing-grass-ans--7 { 0% { transform-origin: bottom left; transform: rotate(-10deg) scale(0) } }
+    @keyframes growing-grass-ans--8 { 0% { transform-origin: bottom right; transform: rotate(10deg) scale(0) } }
+    @keyframes flower-g-long-ans { 0%, 100% { transform: rotate(-30deg) rotateY(-20deg) } 50% { transform: rotate(-32deg) rotateY(-20deg) } }
+    @keyframes flower-g-right-ans { 0%, 100% { transform: rotate(20deg) } 50% { transform: rotate(24deg) rotateX(-20deg) } }
+    @keyframes flower-g-right-ans--2 { 0%, 100% { transform: rotateY(-180deg) rotate(0deg) rotateX(-20deg) } 50% { transform: rotateY(-180deg) rotate(6deg) rotateX(-20deg) } }
+    @keyframes flower__g-front-ans { 0%, 100% { transform: rotate(-28deg) rotateY(30deg) scale(1.04) } 50% { transform: rotate(-35deg) rotateY(40deg) scale(1.04) } }
+    @keyframes flower__g-front__leaf-left-ans-2 { 0% { transform: rotateY(-180deg) scale(0) } }
+    @keyframes flower__g-front__leaf-ans { 0% { transform: rotate(10deg) scale(0) } }
+    @keyframes flower__g-front__leaf-left-ans { 0% { transform: rotateY(-180deg) rotate(5deg) scale(0) } }
+    @keyframes flower__g-fr-ans { 0%, 100% { transform: rotate(2deg) } 50% { transform: rotate(4deg) } }
+    @keyframes flower__g-fr-leaft-ans-1 { 0% { transform-origin: left; transform: rotate(45deg) scale(0) } }
+    @keyframes flower__g-fr-leaft-ans-5 { 0% { transform-origin: left; transform: rotate(55deg) scale(0) } }
+    @keyframes flower__g-fr-leaft-ans-6 { 0% { transform-origin: right; transform: rotate(25deg) rotateY(-180deg) scale(0) } }
+    @keyframes flower__g-fr-leaft-ans-7 { 0% { transform-origin: left; transform: rotate(45deg) scale(0) } }
+    @keyframes flower__g-fr-leaft-ans-8 { 0% { transform-origin: right; transform: rotate(15deg) rotateY(-180deg) scale(0) } }
+    @keyframes leaf-ans-1 { 0%, 100% { transform: rotate(-5deg) scale(1) } 50% { transform: rotate(5deg) scale(1.1) } }
+    @keyframes leaf-ans-2 { 0%, 100% { transform: rotateY(-180deg) rotate(5deg) } 50% { transform: rotateY(-180deg) rotate(0deg) scale(1.1) } }
+    @keyframes leaf-ans-3 { 0%, 100% { transform: rotate(-10deg) rotateY(-180deg) } 50% { transform: rotate(-20deg) rotateY(-180deg) } }
+    /* Pantalla inicial ("Toca para abrir") rediseñada: viñeta radial de
+       fondo (antes negro liso), el texto pasa de blanco plano a un badge
+       dorado/neón a tono con el resto del sitio (carta, título), y dos
+       anillos ("tap-ripple") laten detrás del logo para invitar al toque -
+       antes solo latía el logo (heartbeat), sin ninguna otra señal de
+       "esto se toca". */
+    #audio-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(ellipse at center, rgba(40, 10, 10, 0.55) 0%, rgba(0, 0, 0, 0.85) 60%, #000 100%);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: opacity .8s ease
+    }
+    .overlay-content { text-align: center; color: var(--color-overlay-title); display: flex; flex-direction: column; align-items: center; }
+    .overlay-content h2 {
+        order: 2;
+        font-size: clamp(1.1rem, 4.5vw, 1.8rem);
+        font-weight: 700;
+        margin: 40px 0 0;
+        padding: clamp(10px, 3vw, 12px) clamp(20px, 7vw, 32px);
+        color: #ffe45c;
+        text-shadow: 0 0 8px rgba(255, 60, 20, 0.8), 0 0 18px rgba(255, 60, 20, 0.5);
+        border: 2px solid rgba(255, 204, 0, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 204, 0, 0.08);
+        animation: overlay-hint-pulse 1.8s ease-in-out infinite;
+    }
+    #audio-overlay .overlay-content h2 { animation-play-state: running !important }
+    @keyframes overlay-hint-pulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(255, 204, 0, 0.2); }
+        50% { box-shadow: 0 0 26px rgba(255, 204, 0, 0.55); }
+    }
+    .overlay-image-wrap { order: 1; position: relative; display: flex; align-items: center; justify-content: center; }
+    .tap-ripple {
+        position: absolute;
+        width: 60%;
+        aspect-ratio: 1;
+        border: 2px solid rgba(69, 200, 255, 0.55);
+        border-radius: 50%;
+        animation: tap-ripple-ans 2.2s ease-out infinite;
+    }
+    .tap-ripple--delay { animation-delay: 1.1s; }
+    #audio-overlay .tap-ripple { animation-play-state: running !important }
+    @keyframes tap-ripple-ans {
+        0% { transform: scale(0.6); opacity: 0.8; }
+        100% { transform: scale(1.8); opacity: 0; }
+    }
+    .overlay-image { position: relative; z-index: 1; max-width: 350px; width: 100vw; height: auto; animation: heartbeat 1.2s ease-in-out infinite; filter: drop-shadow(0 0 10px var(--color-overlay-glow)) drop-shadow(0 0 25px var(--color-overlay-glow)) }
+    #audio-overlay .overlay-image { animation-play-state: running !important }
+    @keyframes heartbeat { 0% { transform: scale(1); filter: drop-shadow(0 0 10px var(--color-overlay-glow)) } 30% { transform: scale(1.2); filter: drop-shadow(0 0 25px var(--color-overlay-glow)) drop-shadow(0 0 45px var(--color-overlay-glow)) } 40% { transform: scale(1.15) } 60% { transform: scale(1.2); filter: drop-shadow(0 0 25px var(--color-overlay-glow)) drop-shadow(0 0 55px var(--color-overlay-glow)) } 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--color-overlay-glow)) } }
+    .background-particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden }
+    .particle { position: absolute; bottom: 0; width: 6px; height: 6px; background-color: rgba(255, 255, 255, .5); border-radius: 50%; opacity: 0; animation: background-sparkle 25s linear infinite; filter: blur(1px) }
+    @keyframes background-sparkle { 0% { transform: translateY(0) scale(1); opacity: .5 } 50% { opacity: 1 } 100% { transform: translateY(-100vh) scale(1.5); opacity: 0 } }
+    .particle:nth-child(2) { left: 15%; animation-duration: 20s; animation-delay: 2s; width: 3px; height: 3px }
+    .particle:nth-child(3) { left: 80%; animation-duration: 30s; animation-delay: 5s }
+    .particle:nth-child(4) { left: 50%; animation-duration: 18s; animation-delay: 8s; width: 5px; height: 5px }
+    .particle:nth-child(5) { left: 95%; animation-duration: 22s; animation-delay: 1s }
+    .particle:nth-child(6) { left: 5%; animation-duration: 28s; animation-delay: 10s }
+    .particle:nth-child(7) { left: 30%; animation-duration: 19s; animation-delay: 3s }
+    .particle:nth-child(8) { left: 65%; animation-duration: 26s; animation-delay: 6s }
+    .particle:nth-child(9) { left: 40%; animation-duration: 23s; animation-delay: 9s }
+    .particle:nth-child(10) { left: 25%; animation-duration: 32s; animation-delay: 0s }
+    body:not(.container) .title-container { opacity: 1 }
+
+    /* --- ESTILOS NUEVOS PARA LA TARJETA DE AMOR --- */
+    .love-card-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    .love-card {
+        position: relative;
+        width: 90vw;
+        /* ===== MODIFICADO: Altura de la ventana reducida ===== */
+        height: 70vh; /* Antes era 90vh */
+        max-width: 1200px;
+        max-height: 750px; /* Antes era 800px */
+        background-size: cover;
+        background-position: center;
+        border-radius: 20px;
+        box-shadow: 0 0 30px rgba(0, 179, 255, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        transform: scale(0.9);
+        transition: transform 0.4s ease-in-out;
+    }
+    
+    .love-card-overlay.visible .love-card {
+        transform: scale(1);
+    }
+
+    .love-text {
+        font-family: 'Sour Gummy', sans-serif;
+        color: white;
+        font-size: clamp(2rem, 5vw, 4.5rem);
+        text-align: center;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+        font-weight: 400;
+        pointer-events: none; /* Evita que el texto interfiera con el clic en la tarjeta */
+    }
+
+    .love-card .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 3rem;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        /* ===== SOMBRA MEJORADA PARA MAYOR VISIBILIDAD ===== */
+        text-shadow: 0px 0px 10px rgba(0, 0, 0, 1), 3px 3px 5px rgba(0, 0, 0, 0.9);
+    }
+
+    /* --- CARTA PREVIA AL RAMO: aparece después de la intro de autitos,
+       estilo Hot Wheels (rojo/amarillo, glow azul neón igual que el resto
+       del sitio) - el botón "Ver las flores" es lo único que revela el
+       ramo (revealRamo se llama recién ahí, ver main.js). */
+    .letter-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.85);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        z-index: 9800;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        padding: 20px;
+    }
+
+    .letter-overlay.visible {
+        opacity: 1;
+    }
+
+    .letter-card {
+        position: relative;
+        width: 90vw;
+        max-width: 560px;
+        background: linear-gradient(160deg, #1a0505 0%, #3a0a0a 55%, #1a0505 100%);
+        border: 3px solid #ffcc00;
+        border-radius: 24px;
+        box-shadow: 0 0 25px rgba(255, 40, 20, 0.6), 0 0 55px rgba(69, 200, 255, 0.35), inset 0 0 30px rgba(255, 204, 0, 0.08);
+        padding: clamp(20px, 6vw, 40px) clamp(16px, 5vw, 30px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 18px;
+        transform: scale(0.9);
+        transition: transform 0.4s ease-in-out;
+    }
+
+    .letter-overlay.visible .letter-card {
+        transform: scale(1);
+    }
+
+    /* Dos "caras" dentro de la misma carta: cerrada (logo + "toca para
+       abrir") y abierta (título/mensaje/botón) - .letter-card alterna la
+       clase "open" (ver ver-flores... no, ver openLetter() en main.js) que
+       las cross-fadea con un pequeño "pop" de escala, como si la carta se
+       abriera. Ambas ocupan el mismo lugar (grid con una sola celda) para
+       que la carta no cambie de tamaño de golpe al abrir. */
+    .letter-card {
+        display: grid;
+        cursor: pointer;
+    }
+
+    .letter-face {
+        grid-area: 1 / 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 18px;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .letter-face--closed {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .letter-face--open {
+        opacity: 0;
+        transform: scale(0.85);
+        pointer-events: none;
+    }
+
+    .letter-card.open {
+        cursor: default;
+    }
+
+    /* La cara cerrada (el sobre) espera a que termine de girar la solapa
+       (.envelope-flap, 0.6s) antes de empezar a desvanecerse - por eso el
+       delay de 0.45s, para que se lea como "primero se abre, después
+       desaparece" en vez de un crossfade inmediato que tapa la animación
+       de la solapa a mitad de camino. */
+    .letter-card.open .letter-face--closed {
+        opacity: 0;
+        transform: scale(1.08);
+        transition: opacity 0.35s ease 0.45s, transform 0.35s ease 0.45s;
+        pointer-events: none;
+    }
+
+    .letter-card.open .letter-face--open {
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 0.4s ease 0.55s, transform 0.4s ease 0.55s;
+        pointer-events: auto;
+    }
+
+    /* Fuera de la caja de la carta (hermano de .letter-card, no hijo) -
+       pedido explícito, antes quedaba metido adentro del cuadro. Se oculta
+       con el combinador de hermanos general (~) cuando #letter-card tiene
+       la clase "open", sin necesitar JS aparte para esto. */
+    .letter-tap-hint {
+        font-family: 'Sour Gummy', sans-serif;
+        color: #ffe45c;
+        font-size: clamp(1rem, 3.2vw, 1.25rem);
+        text-shadow: 0 0 6px rgba(255, 60, 20, 0.7);
+        margin: 0;
+        padding: clamp(6px, 2vw, 7px) clamp(16px, 5vw, 22px);
+        border: 1px solid rgba(255, 204, 0, 0.55);
+        border-radius: 999px;
+        background: rgba(255, 204, 0, 0.08);
+        animation: letter-hint-pulse 1.8s ease-in-out infinite;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    #letter-card.open ~ .letter-tap-hint {
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        animation: none;
+    }
+
+    @keyframes letter-hint-pulse {
+        0%, 100% { opacity: 0.75; box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+        50% { opacity: 1; box-shadow: 0 0 14px rgba(255, 204, 0, 0.45); }
+    }
+
+    /* --- SOBRE (estado cerrado): NO es una caja propia adentro de
+       .letter-card (eso se veía como "una tarjeta dentro de otra") - es la
+       misma caja de .letter-card (su borde/fondo ya puestos), con la
+       solapa DIBUJADA sobre esa misma superficie (mismo degradé rojo
+       oscuro, sin borde ni radio propios). Se probaron pliegues extra en
+       las esquinas inferiores pero dejaban huecos triangulares raros sin
+       cubrir - se sacaron, solo queda la solapa de arriba, que es la que
+       rota en 3D. */
+    .envelope {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 3 / 2;
+        perspective: 800px;
+    }
+
+    /* Halo difuso detrás del logo, centrado en TODO el sobre (no en la
+       solapa) - un glow borroso en vez de la esfera dorada sólida que se
+       probó antes y quedaba fea; esto solo agrega profundidad, no compite
+       con el logo. */
+    .envelope::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 70%;
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(circle, rgba(69, 200, 255, 0.22), transparent 70%);
+        filter: blur(6px);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .envelope-flap {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 58%;
+        background: linear-gradient(200deg, #4a1010 0%, #1a0505 80%);
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+        transform-origin: top center;
+        transform: rotateX(0deg);
+        transition: transform 0.65s cubic-bezier(0.45, 0, 0.2, 1);
+        filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.6));
+        z-index: 3;
+    }
+
+    /* Brillo sutil pegado al borde superior de la solapa (como si le
+       pegara luz de arriba) - un pseudo-elemento en vez de sumar otro div
+       en el HTML. */
+    .envelope-flap::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        clip-path: inherit;
+        background: linear-gradient(200deg, rgba(255, 204, 0, 0.18), transparent 45%);
+    }
+
+    /* Línea dorada fina marcando el pliegue (la punta de la solapa) -
+       reemplaza el vacío liso que quedaba entre la solapa y el resto del
+       sobre. */
+    .envelope-flap-seam {
+        position: absolute;
+        top: 58%;
+        left: 50%;
+        width: 46%;
+        height: 2px;
+        transform: translate(-50%, -50%) rotate(0deg);
+        background: linear-gradient(90deg, transparent, rgba(255, 204, 0, 0.5) 50%, transparent);
+        z-index: 3;
+        transition: opacity 0.3s ease;
+    }
+
+    .letter-card.open .envelope-flap {
+        transform: rotateX(-160deg);
+    }
+
+    .letter-card.open .envelope-flap-seam {
+        opacity: 0;
+    }
+
+    /* Logo Hot Wheels centrado en TODO el sobre (antes quedaba pegado a la
+       punta de la solapa, más arriba de centro) - con el mismo glow
+       celeste que el resto del sitio. */
+    .envelope-seal {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: clamp(160px, 42vw, 220px);
+        transform: translate(-50%, -50%);
+        z-index: 4;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .envelope-seal img {
+        display: block;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 0 10px rgba(69, 200, 255, 0.8)) drop-shadow(0 0 20px rgba(69, 200, 255, 0.5));
+    }
+
+    .letter-card.open .envelope-seal {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+
+    .letter-logo {
+        width: clamp(140px, 30vw, 200px);
+        filter: drop-shadow(0 0 10px rgba(69, 200, 255, 0.8)) drop-shadow(0 0 22px rgba(69, 200, 255, 0.5));
+    }
+
+    .letter-logo--small {
+        width: clamp(90px, 20vw, 130px);
+    }
+
+    .letter-title {
+        font-family: 'Sour Gummy', sans-serif;
+        color: #ffcc00;
+        font-size: clamp(1.6rem, 5vw, 2.4rem);
+        font-weight: 700;
+        text-shadow: 0 0 8px rgba(255, 60, 20, 0.9), 0 0 18px rgba(255, 60, 20, 0.6);
+        margin: 0;
+    }
+
+    .letter-text {
+        font-family: 'Sour Gummy', sans-serif;
+        color: #ffffff;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        line-height: 1.5;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+        margin: 0;
+    }
+
+    .letter-btn {
+        font-family: 'Sour Gummy', sans-serif;
+        font-size: clamp(1rem, 3vw, 1.2rem);
+        font-weight: 700;
+        color: #1a0505;
+        background: linear-gradient(180deg, #ffe45c, #ffcc00);
+        border: 2px solid #ff2814;
+        border-radius: 50px;
+        padding: clamp(10px, 3vw, 12px) clamp(22px, 7vw, 32px);
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(255, 204, 0, 0.7), 0 4px 0 #c78e00;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .letter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 18px rgba(255, 204, 0, 0.9), 0 6px 0 #c78e00;
+    }
+
+    .letter-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.7), 0 2px 0 #c78e00;
+    }
+    /*
+    ==================================================================
+    ===> PUNTO DE CONTROL DEFINITIVO PARA MOVER EL RAMO
+    ==================================================================
+    Modifica el valor de 'margin-bottom' para cambiar la altura.
+    - Un valor MÁS GRANDE (ej: 15vh) moverá todo MÁS ARRIBA.
+    - Un valor MÁS PEQUEÑO (ej: 0vh) moverá todo MÁS ABAJO.
+    */
+    .ramo-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 3vh; /* <--- AJUSTA ESTE VALOR PARA SUBIR O BAJAR */
+    }
+
+    /* --- INTRO: autitos Hot Wheels volando con su rayo de propulsor detrás,
+       antes de que se despliegue el ramo. Foto real de auto (no el icono
+       estilizado head1-4.png que usan los tallos) - se muestra una sola vez,
+       nunca vuelve a aparecer tras la primera carga. --- */
+    #intro-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9500;
+        overflow: hidden;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, rgba(0, 40, 90, .35), rgba(0, 0, 0, 0) 70%);
+        opacity: 1;
+        transition: opacity .6s ease;
+    }
+    #intro-overlay.fade-out { opacity: 0; }
+    .intro-car {
+        position: absolute;
+        width: 46vmin;
+        opacity: 0;
+        animation-timing-function: cubic-bezier(.32, .6, .4, 1);
+        animation-fill-mode: forwards;
+    }
+    .intro-car img { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .5)); }
+    /* Propulsor de partículas (reemplaza el emoji de rayo ⚡ de antes): un
+       puñado de puntitos brillantes detrás de cada auto, cada uno con su
+       propio tamaño/retraso (armados por JS, ver buildIntroCars), que se
+       alejan del auto y se apagan en bucle - como el humo/chispas de un
+       cohete, no un simbolo estatico. */
+    .thruster { position: absolute; top: 50%; width: 18vmin; height: 8vmin; pointer-events: none; }
+    .intro-car--ltr .thruster { left: -16vmin; }
+    .intro-car--rtl .thruster { right: -16vmin; }
+    .thruster-particle {
+        position: absolute; top: 50%; border-radius: 50%;
+        background-image: radial-gradient(circle, #eaf6ff 0%, var(--color-luz-particula-1) 45%, rgba(84,197,255,0) 75%);
+        animation-timing-function: linear; animation-iteration-count: infinite;
+    }
+    .intro-car--ltr .thruster-particle { right: 0; animation-name: thrust-stream-left; }
+    .intro-car--rtl .thruster-particle { left: 0; animation-name: thrust-stream-right; }
+    @keyframes thrust-stream-left { 0% { transform: translateY(-50%) translateX(0) scale(1); opacity: .95; } 100% { transform: translateY(-50%) translateX(-13vmin) scale(.15); opacity: 0; } }
+    @keyframes thrust-stream-right { 0% { transform: translateY(-50%) translateX(0) scale(1); opacity: .95; } 100% { transform: translateY(-50%) translateX(13vmin) scale(.15); opacity: 0; } }
+    @keyframes fly-ltr { 0% { transform: translateX(-95vmin); opacity: 0; } 8% { opacity: 1; } 100% { transform: translateX(150vw); opacity: 1; } }
+    @keyframes fly-rtl { 0% { transform: translateX(95vmin); opacity: 0; } 8% { opacity: 1; } 100% { transform: translateX(-150vw); opacity: 1; } }
+    .intro-car--ltr { animation-name: fly-ltr; }
+    .intro-car--rtl { animation-name: fly-rtl; }
+
+*{-webkit-user-select:none;user-select:none}img,audio,video{-webkit-user-drag:none;user-drag:none}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramo de Hot Wheels 2 💙🚙</title>
+    <meta name="description" content="Un ramo azul de Hot Wheels cuyos tallos rematan en autitos estilizados - toca uno para revelar una tarjeta con foto y frase. Empieza con autitos volando con su propulsor a reacción.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌼</text></svg>">
+    <!-- Fuente de letra actualizada -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="container">
+    
+    <div id="audio-overlay">
+      <div class="overlay-content">
+        <h2 id="overlay-text">Toca para abrir</h2>
+        <div class="overlay-image-wrap">
+          <span class="tap-ripple"></span>
+          <span class="tap-ripple tap-ripple--delay"></span>
+          <img src="assets/log.png" alt="Tocar para iniciar" class="overlay-image" id="overlay-image">
+        </div>
+      </div>
+    </div>
+    
+    <div class="background-particles"></div>
+
+    <audio id="background-music" src="assets/sound.mp3" loop></audio>
+
+    <div class="title-container">
+        <h1 class="main-title" id="titulo-text">Feliz Día de los Carritos Hot Wheels 🚗</h1>
+        <div class="title-underline"></div>
+    </div>
+
+    <div class="night"></div>
+    <div id="star-field"></div>
+    <div id="bg-cars"></div>
+
+    <!-- INTRO: autitos Hot Wheels volando con su rayo de propulsor detrás,
+         antes de que aparezca el ramo. Se arma con JS (buildIntroCars) para
+         no repetir 6 bloques casi idénticos a mano. -->
+    <div id="intro-overlay"></div>
+
+    <!-- CARTA: aparece después de la intro de autitos y antes del ramo -
+         estilo Hot Wheels (rojo/amarillo con glow neón azul). Arranca
+         CERRADA (solo logo + "Toca para abrir") - recién al tocarla se
+         revela el mensaje (placeholder, editar más adelante) y el botón
+         "Ver las flores", que es lo único que revela el ramo. -->
+    <div id="letter-overlay" class="letter-overlay">
+        <div class="letter-card" id="letter-card">
+            <div class="letter-face letter-face--closed" id="letter-closed">
+                <div class="envelope">
+                    <div class="envelope-flap"></div>
+                    <div class="envelope-flap-seam"></div>
+                    <div class="envelope-seal">
+                        <img src="assets/log.png" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="letter-face letter-face--open" id="letter-open">
+                <img src="assets/log.png" alt="" class="letter-logo letter-logo--small">
+                <h2 class="letter-title" id="letter-title">Para ti 💌</h2>
+                <p class="letter-text" id="letter-text">Espero que te guste <3 </p>
+                <button type="button" id="ver-flores-btn" class="letter-btn">Ver las flores 🌼</button>
+            </div>
+        </div>
+        <!-- Fuera de la caja (no adentro) - se oculta solo con la clase
+             "open" de #letter-card, ver ~ .letter-tap-hint en style.css. -->
+        <p class="letter-tap-hint" id="letter-tap-hint">Toca para abrir 💌</p>
+    </div>
+
+    <!-- ===== NUEVO CONTENEDOR PARA POSICIONAR EL RAMO ===== -->
+    <div class="ramo-container">
+        <div class="ramo-shadow"></div>
+        <div class="flowers">
+          
+          <!-- IMAGEN DEL ENVOLTORIO AÑADIDA (ya trae el papel negro y el
+               moño azul dibujados en el PNG) -->
+          <div class="flower-wrapping"></div>
+    
+          <!-- TALLOS TRASEROS (el --7, centrado y mas corto, se saco: con
+               el --2 mas alto de los tallos medios delante y en la misma
+               posicion central, quedaba tapado por completo) -->
+          <div class="head-stem head-stem--6"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+          <div class="head-stem head-stem--8"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+    
+          <!-- TALLOS MEDIOS -->
+          <div class="head-stem head-stem--1"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+          <div class="head-stem head-stem--2"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+          <div class="head-stem head-stem--3"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+          
+          <!-- TALLOS INTERMEDIOS -->
+          <div class="head-stem head-stem--4"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+          <div class="head-stem head-stem--5"><div class="flower__line"><div class="head-stem__image"></div></div></div>
+    
+          <!-- MARGARITAS AZULES: 12, armadas por JS (buildFlowers, ver
+               script al final) e insertadas justo aquí (antes de la
+               hierba) para que se intercalen visualmente con los tallos
+               de arriba en vez de quedar todas al frente. -->
+          <div id="flowers-mount"></div>
+
+          <!-- CÓDIGO RESTANTE DE LA HIERBA -->
+          <div class="grow-ans" style="--d:1.2s"><div class="flower__g-long"><div class="flower__g-long__top"></div><div class="flower__g-long__bottom"></div></div></div><div class="growing-grass"><div class="flower__grass flower__grass--1"><div class="flower__grass--top"></div><div class="flower__grass--bottom"></div><div class="flower__grass__leaf flower__grass__leaf--1"></div><div class="flower__grass__leaf flower__grass__leaf--2"></div><div class="flower__grass__leaf flower__grass__leaf--3"></div><div class="flower__grass__leaf flower__grass__leaf--4"></div><div class="flower__grass__leaf flower__grass__leaf--5"></div><div class="flower__grass__leaf flower__grass__leaf--6"></div><div class="flower__grass__leaf flower__grass__leaf--7"></div><div class="flower__grass__leaf flower__grass__leaf--8"></div><div class="flower__grass__overlay"></div></div></div><div class="growing-grass"><div class="flower__grass flower__grass--2"><div class="flower__grass--top"></div><div class="flower__grass--bottom"></div><div class="flower__grass__leaf flower__grass__leaf--1"></div><div class="flower__grass__leaf flower__grass__leaf--2"></div><div class="flower__grass__leaf flower__grass__leaf--3"></div><div class="flower__grass__leaf flower__grass__leaf--4"></div><div class="flower__grass__leaf flower__grass__leaf--5"></div><div class="flower__grass__leaf flower__grass__leaf--6"></div><div class="flower__grass__leaf flower__grass__leaf--7"></div><div class="flower__grass__leaf flower__grass__leaf--8"></div><div class="flower__grass__overlay"></div></div></div><div class="grow-ans" style="--d:2.4s"><div class="flower__g-right flower__g-right--1"><div class="leaf"></div></div></div><div class="grow-ans" style="--d:2.8s"><div class="flower__g-right flower__g-right--2"><div class="leaf"></div></div></div><div class="grow-ans" style="--d:2.8s"><div class="flower__g-front"><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--1"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--2"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--3"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--4"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--5"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--6"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--7"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__leaf-wrapper flower__g-front__leaf-wrapper--8"><div class="flower__g-front__leaf"></div></div><div class="flower__g-front__line"></div></div></div><div class="grow-ans" style="--d:3.2s"><div class="flower__g-fr"><div class="leaf"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--1"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--2"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--3"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--4"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--5"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--6"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--7"></div><div class="flower__g-fr__leaf flower__g-fr__leaf--8"></div></div></div><div class="long-g long-g--0"><div class="grow-ans" style="--d:3s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:2.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:3.4s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--1"><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:3.8s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:4s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--2"><div class="grow-ans" style="--d:4s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:4.4s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:4.6s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--3"><div class="grow-ans" style="--d:4s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:3s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--4"><div class="grow-ans" style="--d:4s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:3s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--5"><div class="grow-ans" style="--d:4s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:3s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--6"><div class="grow-ans" style="--d:4.2s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:4.4s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:4.6s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:4.8s"><div class="leaf leaf--3"></div></div></div><div class="long-g long-g--7"><div class="grow-ans" style="--d:3s"><div class="leaf leaf--0"></div></div><div class="grow-ans" style="--d:3.2s"><div class="leaf leaf--1"></div></div><div class="grow-ans" style="--d:3.5s"><div class="leaf leaf--2"></div></div><div class="grow-ans" style="--d:3.6s"><div class="leaf leaf--3"></div></div></div>
+        </div>
+    </div>
+
+    <!-- ===== ESTRUCTURA HTML PARA LA TARJETA DE AMOR ===== -->
+    <div id="love-card-overlay" class="love-card-overlay">
+        <div id="love-card" class="love-card">
+            <span class="close-btn">&times;</span>
+            <p id="love-text" class="love-text"></p>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/main.js"></script>
+    
+    <!-- ===== SCRIPT MEJORADO PARA LA LÓGICA DE LA TARJETA ===== -->
+    <script src="js/love-card.js"></script>
+    <script src="js/protection.js"></script>
+</body>
+</html>
