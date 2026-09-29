@@ -32,11 +32,27 @@
         box-sizing: border-box;
     }
 
+    /* El "blanco" que aparecía alrededor en celular: el envoltorio y otros
+       elementos del ramo usan vmin (ej. .flower-wrapping mide 150vmin de
+       ANCHO) - en un teléfono en vertical eso es más ancho que la propia
+       pantalla, y el navegador móvil, al detectar contenido más ancho que
+       el viewport, encogía TODA la página para que entrara - dejando ver
+       el fondo blanco por default del <html> (nunca tenía color propio,
+       solo el <body>) alrededor del contenido ya encogido. width:100% +
+       overflow-x:hidden en html (no solo en body) es lo que evita que el
+       navegador haga ese auto-zoom-out en primer lugar. */
+    html {
+        width: 100%;
+        overflow-x: hidden;
+        background-color: var(--color-fondo-oscuro);
+    }
+
     body {
         display: flex;
         align-items: flex-end;
         justify-content: center;
         min-height: 100vh;
+        width: 100%;
         background-color: var(--color-fondo-oscuro);
         overflow: hidden;
         perspective: 1000px;
