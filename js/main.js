@@ -213,8 +213,12 @@
             // --- Campo de estrellas: puntos fijos titilando, repartidos por
             // toda la pantalla. Armados ahora (no hace falta esperar al
             // clic) - quedan pausados junto con el resto del ramo hasta que
-            // revealRamo() los libere.
-            const STAR_COUNT = 32;
+            // revealRamo() los libere. Menos en celular (matchMedia, mismo
+            // corte que el CSS): son 32/60 elementos animando en loop
+            // sumados a los drop-shadow del ramo - en equipos con GPU mas
+            // limitada eso se sentía como lag al hacer zoom con los dedos.
+            const isMobile = window.matchMedia('(max-width: 600px)').matches;
+            const STAR_COUNT = isMobile ? 16 : 32;
             const starField = document.getElementById('star-field');
             for (let i = 0; i < STAR_COUNT; i++) {
                 const star = document.createElement('div');
@@ -346,7 +350,7 @@
             audioOverlay.addEventListener('click', startExperience);
 
             const particleContainer = document.querySelector('.background-particles');
-            const numberOfParticles = 60; 
+            const numberOfParticles = isMobile ? 30 : 60;
             for (let i = 0; i < numberOfParticles; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');

@@ -472,12 +472,30 @@
        intro) - un selector con ID pesa mas que ".container *" aunque los
        dos tengan !important, asi que esta regla gana. */
     .container #intro-overlay, .container #intro-overlay * { animation-play-state: running !important }
-    @media (max-width:600px) { .flowers { transform: scale(.45); bottom: 5vh; } .title-container { flex-direction: column; gap: 10px; top: 3%; justify-content: center; align-items: center } }
+    /* En celulares (pantalla angosta y alta) las medidas en vmin del ramo
+       quedan chicas porque vmin toma el LADO MÁS CORTO (el ancho, en un
+       teléfono en vertical) - a escala .45 sobraba muchísimo alto vacío
+       arriba (align-items:flex-end del body lo pega abajo del todo y deja
+       ese hueco). Subido a .85 para aprovechar el alto real de la pantalla,
+       y el body pasa a centrar verticalmente en vez de pegar todo abajo. */
+    @media (max-width:600px) {
+        body { align-items: center; }
+        .flowers { transform: scale(.85); }
+        .title-container { flex-direction: column; gap: 10px; top: 3%; justify-content: center; align-items: center }
+        /* Menos capas de drop-shadow en celular: cada drop-shadow es un
+           pase de blur aparte (más caro que un box-shadow normal), y
+           .flower__leafs se repite 8 veces (una por margarita) - con 3
+           capas cada una eran 24 blurs recalculándose en vivo durante el
+           pellizco para hacer zoom, ahí se sentía el "lag". Con 2 capas se
+           mantiene el glow pero se aligera bastante. */
+        .flower__leafs { filter: drop-shadow(0 0 2.5vmin rgba(69, 200, 255, 1)) drop-shadow(0 0 7vmin rgba(69, 200, 255, 0.6)); }
+        .flower-wrapping { filter: drop-shadow(0 0 4vmin rgba(69, 200, 255, 0.85)) drop-shadow(0 0 10vmin rgba(69, 200, 255, 0.45)); }
+    }
     /* Celulares chicos (<380px de ancho, ej. iPhone SE) - un empujón más
        sobre el mismo breakpoint de arriba para que el ramo no se corte a
        los costados y el botón/badges no queden pegados al borde. */
     @media (max-width: 380px) {
-        .flowers { transform: scale(.36); }
+        .flowers { transform: scale(.68); }
         .letter-card { padding: 18px 14px; }
         .envelope-seal { width: clamp(120px, 46vw, 160px); }
     }
