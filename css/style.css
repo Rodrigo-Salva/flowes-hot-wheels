@@ -475,11 +475,13 @@
     /* En celulares (pantalla angosta y alta) las medidas en vmin del ramo
        quedan chicas porque vmin toma el LADO MÁS CORTO (el ancho, en un
        teléfono en vertical) - a escala .45 sobraba muchísimo alto vacío
-       arriba (align-items:flex-end del body lo pega abajo del todo y deja
-       ese hueco). Subido a .85 para aprovechar el alto real de la pantalla,
-       y el body pasa a centrar verticalmente en vez de pegar todo abajo. */
+       arriba. NO se toca align-items del body (sigue en flex-end): todos
+       los hijos de .flowers son position:absolute, así que .flowers mide
+       0 de alto para el layout - con align-items:center ese punto "0" se
+       clava en el MEDIO de la pantalla y el ramo (que crece hacia arriba
+       desde ahí) quedaba todo pegado arriba con medio celular vacío abajo.
+       Con flex-end ese punto se ancla abajo del todo, como corresponde. */
     @media (max-width:600px) {
-        body { align-items: center; }
         .flowers { transform: scale(.85); }
         .title-container { flex-direction: column; gap: 10px; top: 3%; justify-content: center; align-items: center }
         /* Menos capas de drop-shadow en celular: cada drop-shadow es un
