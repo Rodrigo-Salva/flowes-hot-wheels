@@ -47,6 +47,16 @@
         background-color: var(--color-fondo-oscuro);
     }
 
+    /* touch-action:none refuerza el user-scalable=no del meta viewport -
+       iOS moderno a veces ignora ese meta por accesibilidad, pero sigue
+       respetando touch-action. Sin pellizco para zoom no hay lag de zoom
+       que arreglar: es una página de una sola pantalla que ya se adapta
+       sola al tamaño (ver los @media de abajo), no hace falta acercar
+       nada a mano. */
+    html, body {
+        touch-action: none;
+    }
+
     body {
         display: flex;
         align-items: flex-end;
